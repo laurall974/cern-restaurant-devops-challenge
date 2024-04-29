@@ -13,23 +13,6 @@ To initiate the cluster named "minikube," execute the following command:
 minikube start
 ```
 
-Useful Commands:
-
-- To list available nodes:
-```bash
-minikube node list
-```
-
-- To retrieve pods information across all namespaces:
-```bash
-minikube kubectl -- get pods -A -o wide
-```
-
-- To access the Kubernetes dashboard:
-```bash
-minikube dashboard
-```
-
 ### Adding Ingress
 
 Enable Ingress using the command:
@@ -85,10 +68,9 @@ Deploy all components using the folder k8s:
 ```bash
 kubectl apply -f k8s
 ```
+Now you need to wait a little bit ☕ 
 
-### Additional Notes
-
-After enabling the addon, execute:
+Execute:
 
 ```bash
 minikube tunnel
@@ -96,5 +78,22 @@ minikube tunnel
 
 This will make your Ingress resources available at `127.0.0.1`.
 
-Go to https://localhost/client to see the result !! 
+**Go to https://localhost/client to see the result !!** 
 
+
+#### Useful Commands:
+
+- To list available nodes:
+```bash
+minikube node list
+```
+
+- To retrieve pods information across all namespaces:
+```bash
+minikube kubectl -- get pods -A -o wide
+```
+
+- To access the Kubernetes dashboard:
+```bash
+minikube dashboard
+```
