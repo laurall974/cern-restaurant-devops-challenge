@@ -32,7 +32,7 @@ services:
     environment:
       - CERN_RESTAURANT_CLIENT_PORT=${CLIENT_PORT}
       - CERN_RESTAURANT_CLIENT_PREFIX=client
-      - VITE_BACKEND_URL=http://localhost/api/
+      - VITE_BACKEND_URL=https://localhost/api/
     ports:
       - "${CLIENT_PORT}:${CLIENT_PORT}"
     networks:
