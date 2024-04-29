@@ -1,0 +1,71 @@
+default:
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  before_script:
+    - docker info
+  
+stages:
+  - test
+  - build
+
+client_test:
+  image: node:20-alpine
+  stage: test
+  script:
+    - cd client
+    - npm install
+    - npm run test
+
+
+server_test:
+  image:  python:3.10
+  stage: test
+  script:
+    - pip install -r requirements.txt
+    - python -m pytest server/
+
+
+client_build:
+  stage: build  
+  variables:
+    IMAGE_NAME: cern-restaurant-client
+    DOCKERFILE_PATH: client
+  before_script:
+    - echo "$DOCKER_REGISTRY_PASS" | docker login $DOCKER_REGISTRY --username $DOCKER_USER --password-stdin
+  script:
+    - docker build -t $DOCKER_USER/$IMAGE_NAME .
+    - docker push $DOCKER_USER/$IMAGE_NAME
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
+    - when: manual
+
+
+server_build:
+  stage: build
+  variables:
+    IMAGE_NAME: cern-restaurant-server
+    DOCKERFILE_PATH: .
+  before_script:
+    - echo "$DOCKER_REGISTRY_PASS" | docker login $DOCKER_REGISTRY --username $DOCKER_USER --password-stdin
+  script:
+    - docker build -t $DOCKER_USER/$IMAGE_NAME .
+    - docker push $DOCKER_USER/$IMAGE_NAME
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
+    - when: manual
+
+
+trigger_on_main:
+  stage: test
+  script: echo "Triggered on main branch"
+  only:
+    - main
+
+trigger_manually:
+  stage: test
+  script: echo "Triggered manually"
+  except:
+    - main
