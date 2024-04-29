@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+spec:
+  selector:
+    matchLabels:
+      component: client
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: client
+    spec:
+      containers:
+      - name: client
+        image: laurall974/cern-restaurant-client:latest
+        ports:
+        - containerPort: 3000
+        env:
+          - name: CERN_RESTAURANT_CLIENT_PORT
+            value: "3000"
+          - name: CERN_RESTAURANT_CLIENT_PREFIX
+            value: "client"
+          - name: VITE_BACKEND_URL
+            value: "https://localhost/api/"

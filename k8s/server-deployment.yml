@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+spec:
+  selector:
+    matchLabels:
+      component: server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: server
+    spec:
+      containers:
+      - name: server
+        image: laurall974/cern-restaurant-server:latest
+        ports:
+        - containerPort: 8080
+        env:
+          - name: SERVER_PORT
+            value: "8080"
+          - name: DB_HOST
+            value: postgres-cluster-ip-service
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_DATABASE
+            value: "cern"
+          - name: DB_USERNAME
+            value: "tech_user"
+          - name: DB_PASSWORD
+            valueFrom: 
+                secretKeyRef:
+                  name: pgpassword
+                  key: PGPASSWORD
+                   

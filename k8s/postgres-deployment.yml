@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-deployment
+spec:
+  selector:
+    matchLabels:
+      component: postgres
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: postgres
+    spec:
+      volumes: 
+        - name: postgres-storage 
+          persistentVolumeClaim:
+            claimName: database-persistent-volume-claim
+        - name: initdb-script
+          configMap:
+            name: postgres-initdb
+            items:
+              - key: initdb.sql
+                path: initdb.sql
+      containers:
+      - name: postgres
+        image: postgres:16
+        ports:
+          - containerPort: 5432
+        volumeMounts: 
+          - name: postgres-storage
+            mountPath: /var/lib/postgresql/data
+            subPath: postgres
+          - name: initdb-script
+            mountPath: /docker-entrypoint-initdb.d/initdb.sql
+            subPath: initdb.sql
+        env:
+          - name: POSTGRES_DB
+            value: "cern"
+          - name: POSTGRES_USER
+            value: "tech_user"
+          - name: POSTGRES_PASSWORD
+            valueFrom: 
+              secretKeyRef:
+                name: pgpassword
+                key: PGPASSWORD
