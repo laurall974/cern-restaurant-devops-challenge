@@ -1,12 +1,11 @@
-import { defineConfig, loadEnv } from 'vite'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
 import path from 'path';
 
-const resolveDir = dir => path.resolve(__dirname, dir);
-
+const resolveDir = (dir) => path.resolve(__dirname, dir);
 
 // https://vitejs.dev/config/
-export default defineConfig(({mode}) => {
+export default defineConfig(({ mode }) => {
     return {
         base: `${process.env.CERN_RESTAURANT_CLIENT_PREFIX}/`,
         plugins: [vue()],
@@ -22,9 +21,14 @@ export default defineConfig(({mode}) => {
         server: {
             host: true,
             port: process.env.CERN_RESTAURANT_CLIENT_PORT,
+            hmr: {
+                protocol: 'ws',
+                host: 'localhost',
+                port: process.env.CERN_RESTAURANT_CLIENT_PORT,
+            },
         },
         test: {
-            environment: 'jsdom'
-        }
-    }
-})
+            environment: 'jsdom',
+        },
+    };
+});

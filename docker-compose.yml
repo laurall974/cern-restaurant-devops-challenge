@@ -1,0 +1,79 @@
+
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: laurall974/cern-restaurant-server:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - SERVER_PORT=${SERVER_PORT}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    # ports: 
+    #   - "${SERVER_PORT}:${SERVER_PORT}"
+    networks:
+      - mynetwork
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: laurall974/cern-restaurant-client:latest
+    depends_on:
+      - server
+    environment:
+      - CERN_RESTAURANT_CLIENT_PORT=${CLIENT_PORT}
+      - CERN_RESTAURANT_CLIENT_PREFIX=client
+      - VITE_BACKEND_URL=http://localhost/api/
+    ports:
+      - "${CLIENT_PORT}:${CLIENT_PORT}"
+    networks:
+      - mynetwork
+
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    networks:
+      - mynetwork
+    volumes:
+       - ./database/initdb.sql:/docker-entrypoint-initdb.d/init.sql
+       - pgdata:/var/lib/postgresql/data/
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:1.25
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./development-certs/localhost.crt:/etc/nginx/ssl/certificate.admin-serv.net.crt
+      - ./development-certs/localhost.key:/etc/nginx/ssl/admin-serv.net.deprotected.key
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - client
+      - server
+    networks:
+      - mynetwork  
+  
+
+networks:
+  mynetwork:
+    driver: bridge
+
+volumes:
+  pgdata:

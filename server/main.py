@@ -10,9 +10,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(root_path='/api/', version="0.3.0")
 
-origins = [
-    # Add other origins here if needed
-]
+origins = ["http://localhost:80", "https://localhost:443"]
 
 # Configure CORS middleware
 app.add_middleware(
